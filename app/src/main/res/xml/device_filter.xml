@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <usb-device vendor-id="03e7" product-id="2150" class="255" subclass="0" protocol="1" />
+    <usb-device vendor-id="03e7" product-id="2485" class="255" subclass="0" protocol="1" />
+    <usb-device vendor-id="03e7" product-id="f63b" class="255" subclass="0" protocol="1" />
+</resources>
