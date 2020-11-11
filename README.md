@@ -17,12 +17,10 @@ https://developer.android.com/things/hardware/raspberrypi
 ```diff
 --- a/modules/java_api/CMakeLists.txt
 +++ b/modules/java_api/CMakeLists.txt
-
- find_package(Java REQUIRED)
- include(UseJava)
-
+@@ -9,7 +9,14 @@ include(UseJava)
+ 
  set(JAVA_AWT_INCLUDE_PATH NotNeeded)
-
+ 
 -find_package(JNI REQUIRED)
 +# find_package(JNI REQUIRED)
 +
@@ -32,11 +30,10 @@ https://developer.android.com/things/hardware/raspberrypi
 +set(JAVA_INCLUDE_PATH2 /usr/lib/jvm/default-java/include/linux)
 +set(JNI_INCLUDE_DIRS /usr/lib/jvm/default-java/include;/usr/lib/jvm/default-java/include/linux;NotNeeded)
 +set(JNI_LIBRARIES /usr/lib/jvm/default-java/lib/libjawt.so;/usr/lib/jvm/default-java/lib/server/libjvm.so)
-
+ 
  # Build native part
-
- file(GLOB_RECURSE sources ${CMAKE_CURRENT_SOURCE_DIR}/cpp/*.cpp)
 ```
+
 4. For ```openvino``` change ```openvino/inference-engine/thirdparty/movidius/mvnc/src/mvnc_api.c``` file:
 ```diff
 --- a/inference-engine/thirdparty/movidius/mvnc/src/mvnc_api.c
