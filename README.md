@@ -39,22 +39,18 @@ https://developer.android.com/things/hardware/raspberrypi
 ```
 4. For ```openvino``` change ```openvino/inference-engine/thirdparty/movidius/mvnc/src/mvnc_api.c``` file:
 ```diff
---- a/openvino/inference-engine/thirdparty/movidius/mvnc/src/mvnc_api.c
-+++ b/openvino/inference-engine/thirdparty/movidius/mvnc/src/mvnc_api.c
-
-    rc = snprintf(full_path_to_firmware, MAX_PATH_LENGTH,
-             "%s%s-%s%s", firmware_dir, fw_protocol_prefix, fw_device_name, fw_format);
-    if (rc < 0)
-        return NC_ERROR;
-
-}
-
-+char src[] = "/data/mvcmd/\0";
-+memcpy(full_path_to_firmware, src, 13);
-
-if (!isPathExists(full_path_to_firmware)) {
-    mvLog(MVLOG_ERROR, "Firmware not found in: %s", full_path_to_firmware);
-    FILE *fptr1;
+--- a/inference-engine/thirdparty/movidius/mvnc/src/mvnc_api.c
++++ b/inference-engine/thirdparty/movidius/mvnc/src/mvnc_api.c
+@@ -617,6 +617,9 @@ ncStatus_t getFirmwarePath(char *firmware_file_path, const int firmware_file_len
+         return NC_ERROR;
+     }
+ 
++    char src[] = "/data/mvcmd/\0";
++    memcpy(full_path_to_firmware, src, 13);
++
+     // If there is no universal firmware available, use a special one
+     if (deviceDesc.protocol == X_LINK_USB_VSC && deviceDesc.platform == X_LINK_MYRIAD_X
+                                                 && !isPathExists(full_path_to_firmware)) {
 ```
 
 5. Now we are ready to build OpenVINO for Android:
