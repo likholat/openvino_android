@@ -55,12 +55,13 @@ https://developer.android.com/things/hardware/raspberrypi
 cd /path/to/openvino
 mkdir build & cd build
 
-cmake \
--DCMAKE_TOOLCHAIN_FILE=/path/to/Downloads/android-ndk/build/cmake/android.toolchain.cmake \
--DANDROID_ABI=armeabi-v7a \
+cmake -DANDROID_ABI=armeabi-v7a \
 -DANDROID_PLATFORM=21 \
 -DANDROID_STL=c++_shared \
--DENABLE_OPENCV=OFF ..
+-DENABLE_OPENCV=OFF \
+-DENABLE_SAMPLES=OFF \
+-DIE_EXTRA_MODULES=/path/to/openvino_contrib/modules/java_api \
+-DCMAKE_TOOLCHAIN_FILE=/path/to/android-ndk/build/cmake/android.toolchain.cmake ..
 
 make --jobs=$(nproc --all)
 ```
