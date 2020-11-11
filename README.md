@@ -13,7 +13,7 @@ https://developer.android.com/things/hardware/raspberrypi
 
 1. Install OpenJDK 8 on Linux computer: ```sudo apt-get install openjdk-8-jdk```
 2. Clone [openvino](https://github.com/openvinotoolkit/openvino.git) and [openvino_contrib](https://github.com/openvinotoolkit/openvino_contrib.git) repositories on your Linux computer. 
-3. For ```openvino_contrib``` change ```openvino_contrib/modules/java_api/CMakeLists.txt``` file:   - CHECK THIS STEP
+3. For ```openvino_contrib``` change ```openvino_contrib/modules/java_api/CMakeLists.txt``` file:
 ```diff
 --- a/modules/java_api/CMakeLists.txt
 +++ b/modules/java_api/CMakeLists.txt
