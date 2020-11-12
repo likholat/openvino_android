@@ -68,7 +68,7 @@ make --jobs=$(nproc --all)
 
 ```
 6. Install Android Things on Raspberry PI
-     To install Android Things on Raspberry PI device use this tutorial: https://developer.android.com/things/hardware/raspberrypi
+   To install Android Things on Raspberry PI device use this tutorial: https://developer.android.com/things/hardware/raspberrypi
 
 7. Create Android Studio project and run it on Raspberry PI
 
@@ -93,7 +93,7 @@ Connect Raspberry PI device to Windows computer:
 * Try to run default application
 ![image]()
 
-7. Add the image output from the camera to the application
+8. Add the image output from usb webcam to the application
 
 * Connect webcam to Raspberry PI via USB
 
@@ -236,7 +236,56 @@ public class MainActivity extends AppCompatActivity {
 ```
 
 * Try to run application 
+![image]()
+
+9. Add OpenVINO to your project
+
+* You will need the following files from the `openvino` project:
+  * Files from sources
+    - `/openvino/inference-engine/temp/vpu/libusb/libs/armeabi-v7a/libusb1.0.so`
+    - `/openvino/inference-engine/thirdparty/movidius/mvnc/src/97-myriad-usbboot.rules`
+  * Files from `openvino/bin/armv7-a/Release/lib`
+    - ```plugins.xml```
+    - `inference_engine_java_api.jar`
+    - `libinference_engine_java_api.so`, `libformat_reader.so`, `libinference_engine_c_api.so`, `libinference_engine_legacy.so`, `libmyriadPlugin.so`,  `libinference_engine.so`, `libinference_engine_ir_reader.so`, `libinference_engine_transformations.so`, `libngraph.so`
+    - `pcie-ma248x.mvcmd`, `usb-ma2x8x.mvcmd`
+  * `/openvino/inference-engine/temp/vpu/libusb/libs/armeabi-v7a/libusb1.0.so`
+
+* Add `inference_engine_java_api.jar` dependency.
+  - Switch your folder structure from Android to Project.
+  ![image]()
+  - Search for the `libs` folder: `MyApplication\app\libs`. Paste your `.jar` file to this foldel.
+  ![image]()
+  - Right click on the `inference_engine_java_api.jar` file and choose `Add as library`. This will take care of adding compile files(`libs/inference_engine_java_api.jar`) in build.gradle.
+
+* Create `jniLibs/armeabi-v7a` directory in `/app/src/main` folder
+![image]()
+* Add all `.so` files from list abow to `jniLibs/armeabi-v7a` folder.
+
+* To add `libc++_shared.so` library 
+  - Open `\app\build.gradle` file and add dependency:
+  
+  ```
+  
+  ```
+  `\app\build.gradle` file shold look like: 
+
+  ```
+     
+  ```
+
+* Switch your folder structure from Project to Android.
 
 
-   
+
+* On Windows computer open Command Prompt:
+  - `cd \AppData\Local\Android\Sdk\platform-tools`
+  - `adb connect *raspberry_pi_ip*`
+  - `adb root & adb remount`
+  - `adb push path/to/97-myriad-usbboot.rules /etc/udev/rules.d`
+  - `adb shell`
+  - `rpi3:/ $ chmod 777 data`
+  - `rpi3:/ $ cd data & mkdir `
+  
+
 
