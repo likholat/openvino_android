@@ -119,7 +119,7 @@ To install Android Things on Raspberry PI device use this tutorial: https://deve
 
    * To work with camera we used [Doorbell](https://github.com/androidthings/doorbell) project sources. Just add [DoorbellCamera.java](https://github.com/androidthings/doorbell/blob/master/app/src/main/java/com/example/androidthings/doorbell/DoorbellCamera.java) file to ```app/java/com/example/myapplication``` foldel.
 
-   * [```app/manifests/AndroidManifest.xml```]()
+   * [```app/manifests/AndroidManifest.xml```](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/AndroidManifest.xml)
    ```xml
    <?xml version="1.0" encoding="utf-8"?>
    <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -153,7 +153,7 @@ To install Android Things on Raspberry PI device use this tutorial: https://deve
    </manifest>
    ```
 
-   * [```app/res/layout/activity_main.xml```]()
+   * [```app/res/layout/activity_main.xml```](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/res/layout/activity_main.xml)
    ```xml
    <?xml version="1.0" encoding="utf-8"?>
    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -310,7 +310,7 @@ https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models
      ```
 
   * Add OpenVINO:
-    - Open [app/java/com/example/myapplication/MainActivity.java](https://github.com/likholat/openvino_android/blob/tutorial/app/java/com/example/myapplication/MainActivity.java) аnd change `onResume()` method
+    - Open [app/java/com/example/myapplication/MainActivity.java](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/java/com/example/myapplication/MainActivity.java) аnd change `onResume()` method
      ```java
      package com.example.myapplication;
 
@@ -363,5 +363,5 @@ https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models
           ...
      }
      ```
-* Try to run 
+* Try to run application 
 ![image]()
