@@ -87,6 +87,7 @@ cmake -DANDROID_ABI=armeabi-v7a \
 make --jobs=$(nproc --all)
 ```
 7. Install Android Things on Raspberry PI
+
    To install Android Things on Raspberry PI device use this tutorial: https://developer.android.com/things/hardware/raspberrypi
 
 8. Create Android Studio project and run it on Raspberry PI
@@ -309,7 +310,7 @@ https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models
      ```
 
   * Add OpenVINO:
-    - Open [app/java/com/example/myapplication/MainActivity.java]() аnd change `onResume()` method
+    - Open [app/java/com/example/myapplication/MainActivity.java](https://github.com/likholat/openvino_android/blob/tutorial/app/java/com/example/myapplication/MainActivity.java) аnd change `onResume()` method
      ```java
      package com.example.myapplication;
 
@@ -362,3 +363,5 @@ https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models
           ...
      }
      ```
+* Try to run 
+![image]()
