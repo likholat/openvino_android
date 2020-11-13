@@ -53,6 +53,8 @@ https://developer.android.com/things/hardware/raspberrypi
 
 5. Now we are ready to build OpenVINO for Android:
 ```
+export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+
 cd /path/to/openvino
 mkdir build & cd build
 
@@ -276,8 +278,6 @@ public class MainActivity extends AppCompatActivity {
 
 * Switch your folder structure from Project to Android.
 
-
-
 * On Windows computer open Command Prompt:
   - `cd \AppData\Local\Android\Sdk\platform-tools`
   - `adb connect *raspberry_pi_ip*`
@@ -286,6 +286,3 @@ public class MainActivity extends AppCompatActivity {
   - `adb shell`
   - `rpi3:/ $ chmod 777 data`
   - `rpi3:/ $ cd data & mkdir `
-  
-
-
