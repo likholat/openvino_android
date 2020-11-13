@@ -311,57 +311,6 @@ https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models
 
   * Add OpenVINO:
     - Open [app/java/com/example/myapplication/MainActivity.java](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/java/com/example/myapplication/MainActivity.java) аnd change `onResume()` method
-     ```java
-     package com.example.myapplication;
 
-     import androidx.appcompat.app.AppCompatActivity;
-     import android.annotation.SuppressLint;
-     import android.graphics.Bitmap;
-     import android.graphics.BitmapFactory;
-     import android.media.Image;
-     import android.media.ImageReader;
-     import android.os.Bundle;
-     import android.os.Handler;
-     import android.os.HandlerThread;
-     import android.os.Message;
-     import android.util.Log;
-     import android.widget.ImageView;
-
-     import org.intel.openvino.CNNNetwork;
-     import org.intel.openvino.IECore;
-
-     import java.nio.ByteBuffer;
-
-     public class MainActivity extends AppCompatActivity {
-
-          private HandlerThread mCameraThread;
-          private Handler mCameraHandler;
-          private DoorbellCamera mCamera;
-
-          private ImageView mImage;
-          private Handler handler;
-
-          @Override
-          public void onResume() {
-               super.onResume();
-
-               try {
-                    System.loadLibrary(IECore.NATIVE_LIBRARY_NAME);
-                    Log.d("MainActivity", "IMPORTED IE");
-               } catch (UnsatisfiedLinkError e) {
-                    System.err.println("Failed to load Inference Engine library\n" + e);
-                    System.exit(1);
-               }
-
-               IECore core = new IECore("/data/openvino/plugins.xml");
-               Log.d("MainActivity", "IECore object was created");
-
-               CNNNetwork net = core.ReadNetwork("/data/openvino/model/face-detection-0200.xml");
-               Log.d("MainActivity", "CNNNetwork object was created");
-          }
-
-          ...
-     }
-     ```
 * Try to run application 
 ![image]()
