@@ -13,7 +13,13 @@ https://developer.android.com/things/hardware/raspberrypi
 ### Build OpenVINO Java bindings for Android: 
 
 1. Install OpenJDK 8 on Linux computer: ```sudo apt-get install openjdk-8-jdk```
-2. Clone [openvino](https://github.com/openvinotoolkit/openvino.git) and [openvino_contrib](https://github.com/openvinotoolkit/openvino_contrib.git) repositories on your Linux computer. 
+2. Clone [openvino](https://github.com/openvinotoolkit/openvino.git) and [openvino_contrib](https://github.com/openvinotoolkit/openvino_contrib.git) repositories on your Linux computer
+```
+cd ~/Downloads
+
+git clone https://github.com/openvinotoolkit/openvino.git
+git clone https://github.com/openvinotoolkit/openvino_contrib.git
+```
 3. For ```openvino_contrib``` change ```openvino_contrib/modules/java_api/CMakeLists.txt``` file:
 ```diff
 --- a/modules/java_api/CMakeLists.txt
@@ -43,19 +49,29 @@ https://developer.android.com/things/hardware/raspberrypi
          return NC_ERROR;
      }
  
-+    char src[] = "/data/mvcmd/\0";
-+    memcpy(full_path_to_firmware, src, 13);
++    char src[] = "/data/openvino/mvcmd/\0";
++    memcpy(full_path_to_firmware, src, 23);
 +
      // If there is no universal firmware available, use a special one
      if (deviceDesc.protocol == X_LINK_USB_VSC && deviceDesc.platform == X_LINK_MYRIAD_X
                                                  && !isPathExists(full_path_to_firmware)) {
 ```
 
-5. Now we are ready to build OpenVINO for Android:
+5. Download and unpack [Android NDK](https://developer.android.com/ndk/downloads). Let's assume that ~/Downloads is used as a working folder.
+```
+wget https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip
+
+unzip android-ndk-r20-linux-x86_64.zip
+mv android-ndk-r20 android-ndk
+```
+
+6. Now we are ready to build OpenVINO for Android:
 ```
 export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
 
-cd /path/to/openvino
+cd openvino
+git submodule update --init --recursive
+
 mkdir build & cd build
 
 cmake -DANDROID_ABI=armeabi-v7a \
@@ -63,16 +79,15 @@ cmake -DANDROID_ABI=armeabi-v7a \
 -DANDROID_STL=c++_shared \
 -DENABLE_OPENCV=OFF \
 -DENABLE_SAMPLES=OFF \
--DIE_EXTRA_MODULES=/path/to/openvino_contrib/modules/java_api \
--DCMAKE_TOOLCHAIN_FILE=/path/to/android-ndk/build/cmake/android.toolchain.cmake ..
+-DIE_EXTRA_MODULES=~/Downloads/openvino_contrib/modules/java_api \
+-DCMAKE_TOOLCHAIN_FILE=~/Downloads/android-ndk/build/cmake/android.toolchain.cmake ..
 
 make --jobs=$(nproc --all)
-
 ```
-6. Install Android Things on Raspberry PI
+7. Install Android Things on Raspberry PI
    To install Android Things on Raspberry PI device use this tutorial: https://developer.android.com/things/hardware/raspberrypi
 
-7. Create Android Studio project and run it on Raspberry PI
+8. Create Android Studio project and run it on Raspberry PI
 
 Create Android Studio project
 * Download Android Studio on your Windows computer: https://developer.android.com/studio
@@ -95,7 +110,7 @@ Connect Raspberry PI device to Windows computer:
 * Try to run default application
 ![image]()
 
-8. Add the image output from usb webcam to the application
+9. Add the image output from usb webcam to the application
 
 * Connect webcam to Raspberry PI via USB
 
@@ -240,9 +255,9 @@ public class MainActivity extends AppCompatActivity {
 * Try to run application 
 ![image]()
 
-9. Add OpenVINO to your project
+10. Add OpenVINO to your project
 
-* You will need the following files from the `openvino` project:
+* You will need the following files from the `openvino` project (copy all this files to your Windows computer):
   * Files from sources
     - `/openvino/inference-engine/temp/vpu/libusb/libs/armeabi-v7a/libusb1.0.so`
     - `/openvino/inference-engine/thirdparty/movidius/mvnc/src/97-myriad-usbboot.rules`
@@ -252,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
     - `libinference_engine_java_api.so`, `libformat_reader.so`, `libinference_engine_c_api.so`, `libinference_engine_legacy.so`, `libmyriadPlugin.so`,  `libinference_engine.so`, `libinference_engine_ir_reader.so`, `libinference_engine_transformations.so`, `libngraph.so`
     - `pcie-ma248x.mvcmd`, `usb-ma2x8x.mvcmd`
   * `/openvino/inference-engine/temp/vpu/libusb/libs/armeabi-v7a/libusb1.0.so`
+  * Also you will need ```~/Downloads/android-ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a/libc++_shared.so``` file.
 
 * Add `inference_engine_java_api.jar` dependency.
   - Switch your folder structure from Android to Project.
@@ -262,19 +278,8 @@ public class MainActivity extends AppCompatActivity {
 
 * Create `jniLibs/armeabi-v7a` directory in `/app/src/main` folder
 ![image]()
-* Add all `.so` files from list abow to `jniLibs/armeabi-v7a` folder.
 
-* To add `libc++_shared.so` library 
-  - Open `\app\build.gradle` file and add dependency:
-  
-  ```
-  
-  ```
-  `\app\build.gradle` file shold look like: 
-
-  ```
-     
-  ```
+* Add all `.so` files from list above to `jniLibs/armeabi-v7a` folder.
 
 * Switch your folder structure from Project to Android.
 
@@ -283,6 +288,131 @@ public class MainActivity extends AppCompatActivity {
   - `adb connect *raspberry_pi_ip*`
   - `adb root & adb remount`
   - `adb push path/to/97-myriad-usbboot.rules /etc/udev/rules.d`
-  - `adb shell`
-  - `rpi3:/ $ chmod 777 data`
-  - `rpi3:/ $ cd data & mkdir `
+
+  * Load `InferenceEngine` library:
+     - Open ```app/java/com/example/myapplication/MainActivity.java```
+     - Add import for `IECore` class and change `onResume()` method
+     ```java
+     package com.example.myapplication;
+
+     import androidx.appcompat.app.AppCompatActivity;
+     import android.annotation.SuppressLint;
+     import android.graphics.Bitmap;
+     import android.graphics.BitmapFactory;
+     import android.media.Image;
+     import android.media.ImageReader;
+     import android.os.Bundle;
+     import android.os.Handler;
+     import android.os.HandlerThread;
+     import android.os.Message;
+     import android.util.Log;
+     import android.widget.ImageView;
+
+     import org.intel.openvino.IECore;
+
+     import java.nio.ByteBuffer;
+
+     public class MainActivity extends AppCompatActivity {
+
+          private HandlerThread mCameraThread;
+          private Handler mCameraHandler;
+          private DoorbellCamera mCamera;
+
+          private ImageView mImage;
+          private Handler handler;
+
+          @Override
+          public void onResume() {
+               super.onResume();
+
+               try {
+                    System.loadLibrary(IECore.NATIVE_LIBRARY_NAME);
+                    Log.d("MainActivity", "IMPORTED IE");
+               } catch (UnsatisfiedLinkError e) {
+                    System.err.println("Failed to load Inference Engine library\n" + e);
+                    System.exit(1);
+               }
+          }
+
+          ...
+     }
+     ```
+
+  * Try to run application
+
+  * Download `face-detection-0200` model files (`.xml` and `.bin`):
+    https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-0200/FP16/
+
+  * In command Command Prompt:
+     - `adb shell`
+     - `rpi3:/ $ chmod 777 data`
+     - `rpi3:/ $ cd data & mkdir openvino`
+     - `rpi3:/ $ cd data/openvino & mkdir model`
+     - Ctrl + D
+     - `adb push path/to/plugins.xml /data/openvino`
+     - `adb push path/to/face-detection-0200.xml /data/openvino/model`
+     - `adb push path/to/face-detection-0200.bin /data/openvino/model`
+
+  * Read `face-detection-0200` model
+    - Open ```app/java/com/example/myapplication/MainActivity.java```
+    - Add import for `CNNNetwork` class and change `onResume()` method
+     ```java
+     package com.example.myapplication;
+
+     import androidx.appcompat.app.AppCompatActivity;
+     import android.annotation.SuppressLint;
+     import android.graphics.Bitmap;
+     import android.graphics.BitmapFactory;
+     import android.media.Image;
+     import android.media.ImageReader;
+     import android.os.Bundle;
+     import android.os.Handler;
+     import android.os.HandlerThread;
+     import android.os.Message;
+     import android.util.Log;
+     import android.widget.ImageView;
+
+     import org.intel.openvino.CNNNetwork;
+     import org.intel.openvino.IECore;
+
+     import java.nio.ByteBuffer;
+
+     public class MainActivity extends AppCompatActivity {
+
+          private HandlerThread mCameraThread;
+          private Handler mCameraHandler;
+          private DoorbellCamera mCamera;
+
+          private ImageView mImage;
+          private Handler handler;
+
+          @Override
+          public void onResume() {
+               super.onResume();
+
+               try {
+                    System.loadLibrary(IECore.NATIVE_LIBRARY_NAME);
+                    Log.d("MainActivity", "IMPORTED IE");
+               } catch (UnsatisfiedLinkError e) {
+                    System.err.println("Failed to load Inference Engine library\n" + e);
+                    System.exit(1);
+               }
+
+               IECore core = new IECore("/data/openvino/plugins.xml");
+               Log.d("MainActivity", "IECore object was created");
+
+               CNNNetwork net = core.ReadNetwork("/data/openvino/model/face-detection-0200.xml");
+               Log.d("MainActivity", "CNNNetwork object was created");
+          }
+
+          ...
+     }
+     ```
+
+ * In command Command Prompt:
+     - `adb shell`
+     - `rpi3:/ $ cd  data/openvino & mkdir mvcmd`
+     - Ctrl + D
+     - `adb push path/to/pcie-ma248x.mvcmd /data/openvino/mvcmd`
+     - `adb push path/to/usb-ma2x8x.mvcmd /data/openvino/mvcmd`
+
