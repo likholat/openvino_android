@@ -16,7 +16,6 @@ https://developer.android.com/things/hardware/raspberrypi
 2.Clone OpenVINO repositories to your computer
 ```
 cd ~/Downloads
-
 git clone https://github.com/openvinotoolkit/openvino.git
 git clone https://github.com/openvinotoolkit/openvino_contrib.git
 ```
@@ -62,7 +61,6 @@ git clone https://github.com/openvinotoolkit/openvino_contrib.git
 ```
 cd ~/Downloads
 wget https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip
-
 unzip android-ndk-r20-linux-x86_64.zip
 mv android-ndk-r20 android-ndk
 ```
@@ -86,179 +84,181 @@ cmake -DANDROID_ABI=armeabi-v7a \
 
 make --jobs=$(nproc --all)
 ```
-7. Install Android Things on Raspberry PI
+### Install Android Things on Raspberry PI
 
-   To install Android Things on Raspberry PI device use this tutorial: https://developer.android.com/things/hardware/raspberrypi
+To install Android Things on Raspberry PI device use this tutorial: https://developer.android.com/things/hardware/raspberrypi
 
-8. Create Android Studio project and run it on Raspberry PI
+### Create Android Studio project and run it on Raspberry PI
 
-Create Android Studio project
-* Download Android Studio on your Windows computer: https://developer.android.com/studio
-* Start a new project
-* Choose "Empty Activity"
+1. Create Android Studio project
+   * Download Android Studio on your Windows computer: https://developer.android.com/studio
+   * Start a new project
+   * Choose "Empty Activity"
+   ![image]()
+
+2. Connect Raspberry PI device to Windows computer:
+   * Connect Raspberry PI device to monitor and Windows computer via USB, wait until it turns on.
+   * Connect your Raspberry PI to the same Wi-Fi network as your Windows computer. Find Raspberry PI IP-address: in the Networks tab under the SSID.
+   * Open Command Prompt:
+     ```
+     cd \AppData\Local\Android\Sdk\platform-tools
+     adb connect *raspberry_pi_ip*
+     ```
+     ![image]()
+   * In future, you don't have to connect the Raspberry PI device to the Windows computer via USB, just use the connection via Wi-Fi (`adb connect *raspberry_pi_ip*` command).
+
+3.  Open your Android Studio project. After `adb connect *raspberry_pi_ip*` command you can choose you Rasbperry PI as target device in Android Studio.
 ![image]()
 
-Connect Raspberry PI device to Windows computer:
-* Connect Raspberry PI device to monitor and Windows computer via USB, wait until it turns on.
-* Connect your Raspberry PI to the same Wi-Fi network as your Windows computer. Find Raspberry PI IP-address: in the Networks tab under the SSID.
-* Open Command Prompt:
-  - `cd \AppData\Local\Android\Sdk\platform-tools`
-  - `adb connect *raspberry_pi_ip*`
-  ![image]()
-* In future, you don't have to connect the Raspberry PI device to the Windows computer via USB, just use the connection via Wi-Fi (`adb connect *raspberry_pi_ip*` command).
-
-* Open your Android Studio project. After `adb connect *raspberry_pi_ip*` command you can choose you Rasbperry PI as target device in Android Studio.
+4. Try to run default application
 ![image]()
 
-* Try to run default application
-![image]()
+5. Add the image output from usb webcam to the application
 
-9. Add the image output from usb webcam to the application
+   * Connect webcam to Raspberry PI via USB
 
-* Connect webcam to Raspberry PI via USB
+   * To work with camera we used [Doorbell](https://github.com/androidthings/doorbell) project sources. Just add [DoorbellCamera.java](https://github.com/androidthings/doorbell/blob/master/app/src/main/java/com/example/androidthings/doorbell/DoorbellCamera.java) file to ```app/java/com/example/myapplication``` foldel.
 
-* To work with camera we used [Doorbell](https://github.com/androidthings/doorbell) project sources. Just add [DoorbellCamera.java](https://github.com/androidthings/doorbell/blob/master/app/src/main/java/com/example/androidthings/doorbell/DoorbellCamera.java) file to ```app/java/com/example/myapplication``` foldel.
+   * [```app/manifests/AndroidManifest.xml```]()
+   ```xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+       package="com.example.myapplication">
 
-* ```app/manifests/AndroidManifest.xml```
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.myapplication">
+       <!--Allow to use a camera-->
+       <uses-permission android:name="android.permission.CAMERA"/>
+       <uses-feature android:name="android.hardware.camera" android:required="false"/>
+       <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+       <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
+       <uses-feature android:name="android.hardware.camera.front.autofocus" android:required="false"/>
 
-    <!--Allow to use a camera-->
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front.autofocus" android:required="false"/>
+       <application
+           android:allowBackup="true"
+           android:icon="@mipmap/ic_launcher"
+           android:label="@string/app_name"
+           android:roundIcon="@mipmap/ic_launcher_round"
+           android:supportsRtl="true"
+           android:theme="@style/Theme.AppCompat.NoActionBar">  <!--Full screen mode-->
 
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar">  <!--Full screen mode-->
+           <activity android:name=".MainActivity"
+               android:screenOrientation="fullSensor">  <!--Screen orientation-->
+               <intent-filter>
+                   <action android:name="android.intent.action.MAIN"/>
 
-        <activity android:name=".MainActivity"
-            android:screenOrientation="fullSensor">  <!--Screen orientation-->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                   <category android:name="android.intent.category.LAUNCHER"/>
+               </intent-filter>
+           </activity>
+       </application>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-    </application>
+   </manifest>
+   ```
 
-</manifest>
-```
+   * [```app/res/layout/activity_main.xml```]()
+   ```xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto"
+       xmlns:tools="http://schemas.android.com/tools"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       tools:context=".MainActivity">
 
-* ```app/res/layout/activity_main.xml```
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+       <ImageView
+           android:id="@+id/imageView"
+           android:layout_width="match_parent"
+           android:layout_height="match_parent"
+           android:layout_alignParentTop="true" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true" />
+   </androidx.constraintlayout.widget.ConstraintLayout>
+   ```
 
-</androidx.constraintlayout.widget.ConstraintLayout>
-```
+   * [```app/java/com/example/myapplication/MainActivity.java```]()
+   ```java
+   package com.example.myapplication;
 
-* ```app/java/com/example/myapplication/MainActivity.java```
-```java
-package com.example.myapplication;
+   import androidx.appcompat.app.AppCompatActivity;
+   import android.annotation.SuppressLint;
+   import android.graphics.Bitmap;
+   import android.graphics.BitmapFactory;
+   import android.media.Image;
+   import android.media.ImageReader;
+   import android.os.Bundle;
+   import android.os.Handler;
+   import android.os.HandlerThread;
+   import android.os.Message;
+   import android.widget.ImageView;
 
-import androidx.appcompat.app.AppCompatActivity;
-import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
-import android.media.ImageReader;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Message;
-import android.widget.ImageView;
+   import java.nio.ByteBuffer;
 
-import java.nio.ByteBuffer;
+   public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends AppCompatActivity {
+       private HandlerThread mCameraThread;
+       private Handler mCameraHandler;
+       private DoorbellCamera mCamera;
 
-    private HandlerThread mCameraThread;
-    private Handler mCameraHandler;
-    private DoorbellCamera mCamera;
+       private ImageView mImage;
+       private Handler handler;
 
-    private ImageView mImage;
-    private Handler handler;
+       @Override
+       public void onResume() {
+           super.onResume();
+       }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
+       @Override
+       protected void onCreate(Bundle savedInstanceState) {
+           super.onCreate(savedInstanceState);
+           setContentView(R.layout.activity_main);
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+           handler = new Handler() {
+               @Override
+               public void handleMessage(Message bitmap) {
+                   Bitmap src = (Bitmap) bitmap.obj;
+                   mImage = findViewById(R.id.imageView);
+                   mImage.setImageBitmap(src);
+               }
+           };
 
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message bitmap) {
-                Bitmap src = (Bitmap) bitmap.obj;
-                mImage = findViewById(R.id.imageView);
-                mImage.setImageBitmap(src);
-            }
-        };
+           mCameraThread = new HandlerThread("CameraBackground");
+           mCameraThread.start();
+           mCameraHandler = new Handler(mCameraThread.getLooper());
 
-        mCameraThread = new HandlerThread("CameraBackground");
-        mCameraThread.start();
-        mCameraHandler = new Handler(mCameraThread.getLooper());
+           mCamera = DoorbellCamera.getInstance();
+           mCamera.initializeCamera(this, mCameraHandler, mOnImageAvailableListener);
+           try {
+               Thread.sleep(1000);
+           } catch (InterruptedException e) {
+               e.printStackTrace();
+           }
+           mCamera.takePicture();
+       }
 
-        mCamera = DoorbellCamera.getInstance();
-        mCamera.initializeCamera(this, mCameraHandler, mOnImageAvailableListener);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        mCamera.takePicture();
-    }
+       private ImageReader.OnImageAvailableListener mOnImageAvailableListener =
+               new ImageReader.OnImageAvailableListener() {
+                   @Override
+                   public void onImageAvailable(ImageReader reader) {
+                       mCamera.takePicture();
+                       Image image = reader.acquireNextImage();
 
-    private ImageReader.OnImageAvailableListener mOnImageAvailableListener =
-            new ImageReader.OnImageAvailableListener() {
-                @Override
-                public void onImageAvailable(ImageReader reader) {
-                    mCamera.takePicture();
-                    Image image = reader.acquireNextImage();
+                       // get image bytes
+                       ByteBuffer imageBuf = image.getPlanes()[0].getBuffer();
+                       byte[] bytes = new byte[imageBuf.capacity()];
+                       imageBuf.get(bytes);
+                       Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
 
-                    // get image bytes
-                    ByteBuffer imageBuf = image.getPlanes()[0].getBuffer();
-                    byte[] bytes = new byte[imageBuf.capacity()];
-                    imageBuf.get(bytes);
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+                       Message msg = new Message();
+                       msg.obj = bitmap;
+                       handler.sendMessage(msg);
 
-                    Message msg = new Message();
-                    msg.obj = bitmap;
-                    handler.sendMessage(msg);
-
-                    image.close();
-                }
-            };
-}
-```
+                       image.close();
+                   }
+               };
+   }
+   ```
 
 * Try to run application 
 ![image]()
 
-10. Add OpenVINO to your project
+### Add OpenVINO to your project
 
 * You will need the following files (copy all this files to your Windows computer):
   * Files from sources
