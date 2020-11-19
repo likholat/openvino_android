@@ -11,16 +11,8 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.ImageView;
 
-import org.intel.openvino.Blob;
-import org.intel.openvino.CNNNetwork;
-import org.intel.openvino.ExecutableNetwork;
-import org.intel.openvino.IECore;
-import org.intel.openvino.InferRequest;
-import org.intel.openvino.InputInfo;
-import org.intel.openvino.Layout;
-import org.intel.openvino.Precision;
-import org.intel.openvino.ResizeAlgorithm;
-import org.intel.openvino.TensorDesc;
+import org.intel.openvino.*;
+
 import org.opencv.android.Utils;
 import org.opencv.core.CvException;
 import org.opencv.core.CvType;
@@ -35,24 +27,6 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-
-    private HandlerThread mCameraThread;
-    private Handler mCameraHandler;
-    private DoorbellCamera mCamera;
-
-    private ImageView mImage;
-    private Handler handler;
-
-    private IECore core;
-    private CNNNetwork net;
-    private ExecutableNetwork executableNetwork;
-    private InferRequest inferRequest;
-    private InputInfo inputInfo;
-    private String inputName;
-    private String outputName;
-    private Scalar color;
-    private Image image;
-
 
     private Mat ImageToMat(Image image){
         ByteBuffer imageBuf = image.getPlanes()[0].getBuffer();
@@ -72,18 +46,22 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        System.loadLibrary("opencv_java4");
-
-        try {
-            System.loadLibrary(IECore.NATIVE_LIBRARY_NAME);
-            Log.d("MainActivity", "Inference Engine library was loaded!");
+        try{
+            System.loadLibrary("opencv_java4");
         } catch (UnsatisfiedLinkError e) {
-            Log.e("MainActivity", "Failed to load Inference Engine library: \n" + e.toString());
+            Log.e("MainActivity", "Failed to load OpenCV library\n" + e.toString());
             System.exit(1);
         }
 
-        core = new IECore("/data/openvino/plugins.xml");
-        net = core.ReadNetwork("/data/openvino/model/face-detection-adas-0001.xml");
+        try {
+            System.loadLibrary(IECore.NATIVE_LIBRARY_NAME);
+        } catch (UnsatisfiedLinkError e) {
+            Log.e("MainActivity", "Failed to load Inference Engine library\n" + e.toString());
+            System.exit(1);
+        }
+
+        core = new IECore("/data/plugins.xml");
+        net = core.ReadNetwork("/data/face-detection-adas-0001.xml");
 
         Map<String, InputInfo> inputsInfo = net.getInputsInfo();
         inputName = new ArrayList<String>(inputsInfo.keySet()).get(0);
@@ -187,4 +165,21 @@ public class MainActivity extends AppCompatActivity {
                     handler.sendMessage(msg);
                 }
             };
+
+    private HandlerThread mCameraThread;
+    private Handler mCameraHandler;
+    private DoorbellCamera mCamera;
+
+    private ImageView mImage;
+    private Handler handler;
+
+    private IECore core;
+    private CNNNetwork net;
+    private ExecutableNetwork executableNetwork;
+    private InferRequest inferRequest;
+    private InputInfo inputInfo;
+    private String inputName;
+    private String outputName;
+    private Scalar color;
+    private Image image;
 }
