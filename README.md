@@ -2,18 +2,18 @@
 
 ### Hardware Requirements 
 
-- Linux and Windows computers
-- Raspberry PI 3 model B
-- Intel Neural Computer Stick 2
-- Webcam
-
-### To Install Android Things to Raspberry PI use this tutorial
-https://developer.android.com/things/hardware/raspberrypi
+- Two Linux or Windows PCs
+- USB flash drive
+- Built-in laptop camera or usb webcam
 
 ### Build OpenVINO Java bindings for Android: 
 
-1. Install OpenJDK 8 on Linux computer: ```sudo apt-get install -y openjdk-8-jdk```
-2.Clone OpenVINO repositories to your computer
+1. Install OpenJDK 8 on Linux computer:
+
+ ```sudo apt-get install -y openjdk-8-jdk```
+
+2. Clone OpenVINO repositories to your computer
+
 ```
 cd ~/Downloads
 git clone https://github.com/openvinotoolkit/openvino.git
@@ -30,34 +30,11 @@ git clone https://github.com/openvinotoolkit/openvino_contrib.git
  
 -find_package(JNI REQUIRED)
 +# find_package(JNI REQUIRED)
-+
-+set(JAVA_JVM_LIBRARY /usr/lib/jvm/default-java/lib/server/libjvm.so)
-+set(JAVA_AWT_LIBRARY /usr/lib/jvm/default-java/lib/libjawt.so)
-+set(JAVA_INCLUDE_PATH /usr/lib/jvm/default-java/include/jni.h)
-+set(JAVA_INCLUDE_PATH2 /usr/lib/jvm/default-java/include/linux)
-+set(JNI_INCLUDE_DIRS /usr/lib/jvm/default-java/include;/usr/lib/jvm/default-java/include/linux;NotNeeded)
-+set(JNI_LIBRARIES /usr/lib/jvm/default-java/lib/libjawt.so;/usr/lib/jvm/default-java/lib/server/libjvm.so)
  
  # Build native part
 ```
 
-4. For ```openvino``` change ```openvino/inference-engine/thirdparty/movidius/mvnc/src/mvnc_api.c``` file:
-```diff
---- a/inference-engine/thirdparty/movidius/mvnc/src/mvnc_api.c
-+++ b/inference-engine/thirdparty/movidius/mvnc/src/mvnc_api.c
-@@ -617,6 +617,9 @@ ncStatus_t getFirmwarePath(char *firmware_file_path, const int firmware_file_len
-         return NC_ERROR;
-     }
- 
-+    char src[] = "/data/openvino/mvcmd/\0";
-+    memcpy(full_path_to_firmware, src, 23);
-+
-     // If there is no universal firmware available, use a special one
-     if (deviceDesc.protocol == X_LINK_USB_VSC && deviceDesc.platform == X_LINK_MYRIAD_X
-                                                 && !isPathExists(full_path_to_firmware)) {
-```
-
-5. Download and unpack [Android NDK](https://developer.android.com/ndk/downloads). Let's assume that ~/Downloads is used as a working folder.
+4. Download and unpack [Android NDK](https://developer.android.com/ndk/downloads). Let's assume that ~/Downloads is used as a working folder.
 ```
 cd ~/Downloads
 wget https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip
@@ -65,7 +42,7 @@ unzip android-ndk-r20-linux-x86_64.zip
 mv android-ndk-r20 android-ndk
 ```
 
-6. Now we are ready to build OpenVINO for Android:
+5. Now we are ready to build OpenVINO for Android:
 ```
 export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
 
@@ -74,7 +51,7 @@ git submodule update --init --recursive
 
 mkdir build & cd build
 
-cmake -DANDROID_ABI=armeabi-v7a \
+cmake -DANDROID_ABI=x86 \
 -DANDROID_PLATFORM=21 \
 -DANDROID_STL=c++_shared \
 -DENABLE_OPENCV=OFF \
@@ -84,38 +61,40 @@ cmake -DANDROID_ABI=armeabi-v7a \
 
 make --jobs=$(nproc --all)
 ```
-### Install Android Things on Raspberry PI
 
-To install Android Things on Raspberry PI device use this tutorial: https://developer.android.com/things/hardware/raspberrypi
+### To run Android on your PC
 
-### Create Android Studio project and run it on Raspberry PI
+1. Download .iso file:
+
+   ```wget https://osdn.net/frs/redir.php?m=dotsrc&f=android-x86%2F71931%2Fandroid-x86_64-9.0-r2.iso```
+
+2. Use [BalenaEtcher](https://www.balena.io/etcher/) to flash Android OS to USB flash drive.
+3. Reboot your PC to run Android OS.
+
+### Create Android Studio project and run it on your PC with Android OS
 
 1. Create Android Studio project
-   * Download Android Studio on your Windows computer: https://developer.android.com/studio
+   * Download Android Studio on your another PC: https://developer.android.com/studio
    * Start a new project
    * Choose "Empty Activity"
    ![image]()
 
-2. Connect Raspberry PI device to Windows computer:
-   * Connect Raspberry PI device to monitor and Windows computer via USB, wait until it turns on.
-   * Connect your Raspberry PI to the same Wi-Fi network as your Windows computer. Find Raspberry PI IP-address: in the Networks tab under the SSID.
-   * Open Command Prompt:
+2. Connect PC with Android OS to your PC:
+   * On PC with Android OS open `Settings -> System -> About Tablet` and find it's IP address: `192.168.0.XXX`.
+   * On PC with Android Studio open Command Prompt:
      ```
-     cd \AppData\Local\Android\Sdk\platform-tools
-     adb connect *raspberry_pi_ip*
+     cd /AppData/Local/Android/Sdk/platform-tools
+     adb connect *ip_address*
      ```
      ![image]()
-   * In future, you don't have to connect the Raspberry PI device to the Windows computer via USB, just use the connection via Wi-Fi (`adb connect *raspberry_pi_ip*` command).
 
-3.  Open your Android Studio project. After `adb connect *raspberry_pi_ip*` command you can choose you Rasbperry PI as target device in Android Studio.
+3. Open your Android Studio project. After `adb connect *ip_address*` command you can choose you PC as target device in Android Studio.
 ![image]()
 
 4. Try to run default application
 ![image]()
 
 5. Add the image output from usb webcam to the application
-
-   * Connect webcam to Raspberry PI via USB
 
    * To work with camera we used [Doorbell](https://github.com/androidthings/doorbell) project sources. Just add [DoorbellCamera.java](https://github.com/androidthings/doorbell/blob/master/app/src/main/java/com/example/androidthings/doorbell/DoorbellCamera.java) file to ```app/java/com/example/myapplication``` foldel.
 
@@ -255,45 +234,69 @@ To install Android Things on Raspberry PI device use this tutorial: https://deve
    }
    ```
 
-* Try to run application 
+* Try to run the application 
 ![image]()
 
 ### Add OpenVINO to your project
 
-* You will need the following files (copy all this files to your Windows computer):
-  * Files from sources
-    - `/openvino/inference-engine/temp/vpu/libusb/libs/armeabi-v7a/libusb1.0.so`
-    - `/openvino/inference-engine/thirdparty/movidius/mvnc/src/97-myriad-usbboot.rules`
-  * Files from `openvino/bin/armv7-a/Release/lib`
-    - ```plugins.xml```
-    - `inference_engine_java_api.jar`
-    - `libinference_engine_java_api.so`, `libformat_reader.so`, `libinference_engine_c_api.so`, `libinference_engine_legacy.so`, `libmyriadPlugin.so`,  `libinference_engine.so`, `libinference_engine_ir_reader.so`, `libinference_engine_transformations.so`, `libngraph.so`
-    - `pcie-ma248x.mvcmd`, `usb-ma2x8x.mvcmd` (copy to new `mvcmd` folder)
-  * `/openvino/inference-engine/temp/vpu/libusb/libs/armeabi-v7a/libusb1.0.so`
-  * Also you will need ```~/Downloads/android-ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a/libc++_shared.so``` file.
+* You will need the following files from OpenVINO:
+
+```
+cd ~/Downloads & mkdir openvino
+
+cp ~/Downloads/openvino/bin/intel64/Release/lib/plugins.xml ~/Downloads/openvino
+cp ~/Downloads/openvino/bin/intel64/Release/lib/inference_engine_java_api.jar ~/Downloads/openvino
+
+cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_java_api.so ~/Downloads/openvino
+cp ~/Downloads/openvino/bin/intel64/Release/lib/libformat_reader.so ~/Downloads/openvino
+cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_c_api.so ~/Downloads/openvino
+cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_legacy.so ~/Downloads/openvino
+cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine.so ~/Downloads/openvino
+cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_ir_reader.so ~/Downloads/openvino
+cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_transformations.so ~/Downloads/openvino
+cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_lp_transformations.so ~/Downloads/openvino
+cp ~/Downloads/openvino/bin/intel64/Release/lib/libngraph.so ~/Downloads/openvino
+cp ~/Downloads/openvino/bin/intel64/Release/lib/libMKLDNNPlugin.so ~/Downloads/openvino
+cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_preproc.so ~/Downloads/openvino
+
+cp ~/Downloads/openvino/inference-engine/temp/tbb/lib/libtbb.so ~/Downloads/openvino
+cp ~/Downloads/openvino/inference-engine/temp/tbb/lib/libtbbmalloc.so ~/Downloads/openvino
+cp ~/Downloads/openvino/inference-engine/temp/vpu/libusb/libs/x86_64/libusb1.0.so ~/Downloads/openvino
+```
+
+* Also you will need `libc++_shared.so` file.
+
+```cp ~/Downloads/android-ndk/sources/cxx-stl/llvm-libc++/libs/x86_64/libc++_shared.so ~/Downloads/openvino```
 
 * Add `inference_engine_java_api.jar` dependency.
   - Switch your folder structure from Android to Project.
   ![image]()
-  - Search for the `libs` folder: `MyApplication\app\libs`. Paste your `.jar` file to this foldel.
+  - Search for the `libs` folder: `MyApplication/app/libs`. Paste your `.jar` file to this foldel.
   ![image]()
   - Right click on the `inference_engine_java_api.jar` file and choose `Add as library`. This will take care of adding compile files(`libs/inference_engine_java_api.jar`) in build.gradle.
 
-* Create `jniLibs/armeabi-v7a` directory in `/app/src/main` folder
+* Create `jniLibs/x86_64` directory in `MyApplication/app/src/main` folder
 ![image]()
 
-* Add all `.so` files from list above to `jniLibs/armeabi-v7a` folder.
+* Add all `.so` files from list above to `jniLibs/x86_64` folder:
+```
+cp ~/Downloads/openvino/*.so /AndroidStudioProjects/MyApplication/app/src/main/jniLibs/x86_64
+```
 
 * Switch your folder structure from Project to Android.
 
-* Download `face-detection-0200` model files (`.xml` and `.bin`) to `~\Downloads\model` foldel:
-https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-0200/FP16/
+* Download `face-detection-0200` model files (`.xml` and `.bin`) to `~/Downloads/model` foldel:
+```
+cd ~/Downloads & mkdir model
+wget https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.xml -P ~/Downloads/model
+wget https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.bin -P ~/Downloads/model
+```
 
 * Open Command Prompt:
      ```
      cd \AppData\Local\Android\Sdk\platform-tools
      adb connect *raspberry_pi_ip*
-     adb root & adb remount
+     adb root
      adb shell
      rpi3:/ $ chmod 777 data
      rpi3:/ $ cd data & mkdir openvino
@@ -303,14 +306,13 @@ https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models
 
      Push OpenVINO files to Raspberry PI:
      ```
-     adb push path\to\97-myriad-usbboot.rules /etc/udev/rules.d`
-     adb push path\to\plugins.xml /data/openvino`
-     adb push path\to\model /data/openvino`
-     adb push path\to\mvcmd /data/openvino`
+     adb push ~/Downloads/openvino/plugins.xml /data/openvino
+     adb push ~/Downloads/model/face-detection-adas-0001.xml /data/openvino/model
+     adb push ~/Downloads/model/face-detection-adas-0001 /data/openvino/model
      ```
 
   * Add OpenVINO:
-    - Open [app/java/com/example/myapplication/MainActivity.java](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/java/com/example/myapplication/MainActivity.java) аnd change `onResume()` method
+    - Change [app/java/com/example/myapplication/MainActivity.java](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/java/com/example/myapplication/MainActivity.java) file.
 
-* Try to run application 
+* Try to run the application 
 ![image]()
