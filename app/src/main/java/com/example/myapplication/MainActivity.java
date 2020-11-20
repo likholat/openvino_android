@@ -25,6 +25,7 @@ import org.opencv.imgproc.Imgproc;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,32 +50,34 @@ public class MainActivity extends AppCompatActivity {
         try{
             System.loadLibrary("opencv_java4");
         } catch (UnsatisfiedLinkError e) {
-            Log.e("MainActivity", "Failed to load OpenCV library\n" + e.toString());
+            Log.e("UnsatisfiedLinkError", "Failed to load OpenCV library\n" + e.toString());
             System.exit(1);
         }
 
         try {
             System.loadLibrary(IECore.NATIVE_LIBRARY_NAME);
         } catch (UnsatisfiedLinkError e) {
-            Log.e("MainActivity", "Failed to load Inference Engine library\n" + e.toString());
+            Log.e("UnsatisfiedLinkError", "Failed to load Inference Engine library\n" + e.toString());
             System.exit(1);
         }
 
-        core = new IECore("/data/plugins.xml");
-        net = core.ReadNetwork("/data/face-detection-adas-0001.xml");
+        IECore core = new IECore("/data/plugins.xml");
+        CNNNetwork net = core.ReadNetwork("/data/face-detection-adas-0001.xml");
 
         Map<String, InputInfo> inputsInfo = net.getInputsInfo();
         inputName = new ArrayList<String>(inputsInfo.keySet()).get(0);
         inputInfo = inputsInfo.get(inputName);
 
-        inputInfo.getPreProcess().setResizeAlgorithm(ResizeAlgorithm.RESIZE_BILINEAR);
+        preProcessInfo = inputInfo.getPreProcess();
+        preProcessInfo.setResizeAlgorithm(ResizeAlgorithm.RESIZE_BILINEAR);
         inputInfo.setLayout(Layout.NHWC);
         inputInfo.setPrecision(Precision.U8);
 
-        executableNetwork = core.LoadNetwork(net, "CPU");
+        ExecutableNetwork executableNetwork = core.LoadNetwork(net, "CPU");
         inferRequest = executableNetwork.CreateInferRequest();
 
-        outputName = new ArrayList<String>(net.getOutputsInfo().keySet()).get(0);
+        outputsInfo = net.getOutputsInfo();
+        outputName = new ArrayList<String>(outputsInfo.keySet()).get(0);
 
         color = new Scalar(0, 255, 0);
     }
@@ -93,9 +96,9 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        mCameraThread = new HandlerThread("CameraBackground");
+        HandlerThread mCameraThread = new HandlerThread("CameraBackground");
         mCameraThread.start();
-        mCameraHandler = new Handler(mCameraThread.getLooper());
+        Handler mCameraHandler = new Handler(mCameraThread.getLooper());
 
         mCamera = DoorbellCamera.getInstance();
         mCamera.initializeCamera(this, mCameraHandler, mOnImageAvailableListener);
@@ -111,22 +114,21 @@ public class MainActivity extends AppCompatActivity {
             new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
-                    Log.e("MYTAG", "IMAGE");
                     mCamera.takePicture();
-                    image = reader.acquireNextImage();
+                    Image image = reader.acquireNextImage();
 
-                    Mat img = ImageToMat(image);
+                    Mat imgMat = ImageToMat(image);
                     image.close();
 
-                    Blob imgBlob = MatToBlob(img);
+                    Blob imgBlob = MatToBlob(imgMat);
 
                     inferRequest.SetBlob(inputName, imgBlob);
                     inferRequest.Infer();
 
-                    Blob output = inferRequest.GetBlob(outputName);
+                    Blob outputBlob = inferRequest.GetBlob(outputName);
 
-                    float detection[] = new float[output.size()];
-                    output.rmap().get(detection);
+                    float[] detection = new float[outputBlob.size()];
+                    outputBlob.rmap().get(detection);
 
                     int maxProposalCount = detection.length / 7;
 
@@ -139,25 +141,25 @@ public class MainActivity extends AppCompatActivity {
                         // Drawing only objects with >70% probability
                         if (confidence < 0.7) continue;
 
-                        int xmin = (int) (detection[curProposal * 7 + 3] * img.cols());
-                        int ymin = (int) (detection[curProposal * 7 + 4] * img.rows());
-                        int xmax = (int) (detection[curProposal * 7 + 5] * img.cols());
-                        int ymax = (int) (detection[curProposal * 7 + 6] * img.rows());
+                        int xmin = (int) (detection[curProposal * 7 + 3] * imgMat.cols());
+                        int ymin = (int) (detection[curProposal * 7 + 4] * imgMat.rows());
+                        int xmax = (int) (detection[curProposal * 7 + 5] * imgMat.cols());
+                        int ymax = (int) (detection[curProposal * 7 + 6] * imgMat.rows());
 
                         // Draw rectangle around detected object.
                         Point lt = new Point(xmin, ymin);
                         Point br = new Point(xmax, ymax);
-                        Imgproc.rectangle(img, lt, br, color, 1);
+                        Imgproc.rectangle(imgMat, lt, br, color, 1);
                     }
 
                     Bitmap bmp = null;
                     try {
-                        Imgproc.cvtColor(img, img, Imgproc.COLOR_BGR2RGB);
-                        bmp = Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888);
-                        Utils.matToBitmap(img, bmp);
+                        Imgproc.cvtColor(imgMat, imgMat, Imgproc.COLOR_BGR2RGB);
+                        bmp = Bitmap.createBitmap(imgMat.cols(), imgMat.rows(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(imgMat, bmp);
                     }
                     catch (CvException e){
-                        Log.e("CvException", e.getMessage());
+                        Log.e("CvException", Objects.requireNonNull(e.getMessage()));
                     }
 
                     Message msg = new Message();
@@ -166,20 +168,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
 
-    private HandlerThread mCameraThread;
-    private Handler mCameraHandler;
     private DoorbellCamera mCamera;
 
     private ImageView mImage;
     private Handler handler;
 
-    private IECore core;
-    private CNNNetwork net;
-    private ExecutableNetwork executableNetwork;
     private InferRequest inferRequest;
-    private InputInfo inputInfo;
     private String inputName;
     private String outputName;
     private Scalar color;
-    private Image image;
+    
+    private InputInfo inputInfo;
+    private PreProcessInfo preProcessInfo;
+    private Map<String, Data> outputsInfo;
 }

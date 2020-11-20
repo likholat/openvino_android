@@ -36,13 +36,9 @@ git clone https://github.com/openvinotoolkit/openvino_contrib.git
  # Build native part
 ```
 
-4. Download and unpack [Android NDK](https://developer.android.com/ndk/downloads).
-```
-cd ~/Downloads
-wget https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip
-unzip android-ndk-r20-linux-x86_64.zip
-mv android-ndk-r20 android-ndk
-```
+* For `/openvino_contrib/modules/java_api/cpp/cnn_network.cpp` and `/openvino_contrib/modules/java_api/cpp/infer_request.cpp` files delete all `env->PopLocalFrame(hashMapObj);` method calls.
+
+4. Download and unpack [Android NDK](https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip).
 
 5. Now we are ready to build OpenVINO for Android:
 ```
@@ -56,10 +52,13 @@ mkdir build & cd build
 cmake -DANDROID_ABI=x86 \
 -DANDROID_PLATFORM=21 \
 -DANDROID_STL=c++_shared \
+-DENABLE_VPU=OFF \
+-DENABLE_GNA=OFF \
+-DENABLE_CLDNN=OFF \
 -DENABLE_OPENCV=OFF \
 -DENABLE_SAMPLES=OFF \
 -DIE_EXTRA_MODULES=~/Downloads/openvino_contrib/modules \
--DCMAKE_TOOLCHAIN_FILE=~/Downloads/android-ndk/build/cmake/android.toolchain.cmake ..
+-DCMAKE_TOOLCHAIN_FILE=~/Downloads/android-ndk-r20/build/cmake/android.toolchain.cmake ..
 
 make --jobs=$(nproc --all)
 ```
@@ -87,17 +86,10 @@ cd ~/Downloads & mkdir openvino
 cp ~/Downloads/openvino/bin/intel64/Release/lib/plugins.xml ~/Downloads/openvino
 cp ~/Downloads/openvino/bin/intel64/Release/lib/inference_engine_java_api.jar ~/Downloads/openvino
 
-cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_java_api.so ~/Downloads/openvino
-cp ~/Downloads/openvino/bin/intel64/Release/lib/libformat_reader.so ~/Downloads/openvino
-cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_c_api.so ~/Downloads/openvino
-cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_legacy.so ~/Downloads/openvino
-cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine.so ~/Downloads/openvino
-cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_ir_reader.so ~/Downloads/openvino
-cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_transformations.so ~/Downloads/openvino
-cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_lp_transformations.so ~/Downloads/openvino
-cp ~/Downloads/openvino/bin/intel64/Release/lib/libngraph.so ~/Downloads/openvino
-cp ~/Downloads/openvino/bin/intel64/Release/lib/libMKLDNNPlugin.so ~/Downloads/openvino
-cp ~/Downloads/openvino/bin/intel64/Release/lib/libinference_engine_preproc.so ~/Downloads/openvino
+cd ~/Downloads/openvino/bin/intel64/Release/lib
+~/Downloads/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/x86_64-linux-android/bin/strip *.so
+
+cp ~/Downloads/openvino/bin/intel64/Release/lib/*.so ~/Downloads/openvino
 
 cp ~/Downloads/openvino/inference-engine/temp/tbb/lib/libtbb.so ~/Downloads/openvino
 cp ~/Downloads/openvino/inference-engine/temp/tbb/lib/libtbbmalloc.so ~/Downloads/openvino
@@ -131,12 +123,7 @@ cp ~/Downloads/openvino/*.so /AndroidStudioProjects/MyApplication/app/src/main/j
 
 5. Switch your folder structure from Project to Android.
 
-6. Download `face-detection-0200` model files (`.xml` and `.bin`) to `~/Downloads/model` foldel:
-```
-cd ~/Downloads & mkdir model
-wget https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.xml -P ~/Downloads/model
-wget https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.bin -P ~/Downloads/model
-```
+6. Download model files: [face-detection-adas-0001.bin](https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.bin) and [face-detection-adas-0001.xml](https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.xml).
 
 7. Use [Android Debug Bridge (adb)](https://developer.android.com/studio/command-line/adb) to connect PC with Android OS to your PC:
     ```
@@ -145,17 +132,9 @@ wget https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/m
     adb push ~/Downloads/openvino/plugins.xml /data/openvino
     adb push ~/Downloads/model/face-detection-adas-0001.xml /data
     adb push ~/Downloads/model/face-detection-adas-0001 /data
-
-    adb shell
-    rpi3:/ $ chmod 777 data
-    Ctrl + D
     ```
-     
-8. Open your Android Studio project and choose you PC as target device in Android Studio.
-![image]()
 
-
-9. To add face detection from the camera to the application, change the following files:
+8. To add face detection from the camera to the application, change the following files:
     - To work with camera we used [Doorbell](https://github.com/androidthings/doorbell) project sources. Just add [DoorbellCamera.java](https://github.com/androidthings/doorbell/blob/master/app/src/main/java/com/example/androidthings/doorbell/DoorbellCamera.java) file to ```app/java/com/example/myapplication``` foldel.
 
     - [```app/manifests/AndroidManifest.xml```](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/AndroidManifest.xml)
@@ -163,5 +142,5 @@ wget https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/m
     - [```app/res/layout/activity_main.xml```](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/res/layout/activity_main.xml)
     - [app/java/com/example/myapplication/MainActivity.java](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/java/com/example/myapplication/MainActivity.java) file.
 
-10. Try to run the application 
+9. Try to run the application 
 ![image]()
