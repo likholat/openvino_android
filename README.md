@@ -38,7 +38,7 @@ git clone https://github.com/openvinotoolkit/openvino_contrib.git
 
 * For `/openvino_contrib/modules/java_api/cpp/cnn_network.cpp` and `/openvino_contrib/modules/java_api/cpp/infer_request.cpp` files delete all `env->PopLocalFrame(hashMapObj);` method calls.
 
-4. Download and unpack [Android NDK](https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip).
+4. Download and unpack [Android NDK](https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip) to `~/Downloads` folder.
 
 5. Now we are ready to build OpenVINO for Android:
 ```
@@ -49,7 +49,7 @@ git submodule update --init --recursive
 
 mkdir build & cd build
 
-cmake -DANDROID_ABI=x86 \
+cmake -DANDROID_ABI=x86_64 \
 -DANDROID_PLATFORM=21 \
 -DANDROID_STL=c++_shared \
 -DENABLE_VPU=OFF \
@@ -109,11 +109,11 @@ cp ~/Downloads/openvino/inference-engine/temp/vpu/libusb/libs/x86_64/libusb1.0.s
 2. Add `inference_engine_java_api.jar` dependency.
   - Switch your folder structure from Android to Project.
   ![image]()
-  - Search for the `libs` folder: `MyApplication/app/libs`. Paste your `.jar` file to this foldel.
+  - Search for the `libs` folder: `app/libs`. Paste your `.jar` file to this foldel.
   ![image]()
   - Right click on the `inference_engine_java_api.jar` file and choose `Add as library`. This will take care of adding compile files(`libs/inference_engine_java_api.jar`) in build.gradle.
 
-3. Create `jniLibs/x86_64` directory in `MyApplication/app/src/main` folder
+3. Create `jniLibs/x86_64` directory in `app/src/main` folder
 ![image]()
 
 4. Add all `.so` files from list above to `jniLibs/x86_64` folder:
@@ -125,13 +125,10 @@ cp ~/Downloads/openvino/*.so /AndroidStudioProjects/MyApplication/app/src/main/j
 
 6. Download model files: [face-detection-adas-0001.bin](https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.bin) and [face-detection-adas-0001.xml](https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.xml).
 
-7. Use [Android Debug Bridge (adb)](https://developer.android.com/studio/command-line/adb) to connect PC with Android OS to your PC:
+7. Use [Android Debug Bridge (adb)](https://developer.android.com/studio/command-line/adb) to transfer data files on Android:
     ```
-    adb root
-
-    adb push ~/Downloads/openvino/plugins.xml /data/openvino
-    adb push ~/Downloads/model/face-detection-adas-0001.xml /data
-    adb push ~/Downloads/model/face-detection-adas-0001 /data
+    adb push ~/Downloads/openvino/plugins.xml /data
+    adb push ~/Downloads/model/face-detection-adas-0001.xml ~/Downloads/model/face-detection-adas-0001.bin /data
     ```
 
 8. To add face detection from the camera to the application, change the following files:
