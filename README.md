@@ -63,7 +63,7 @@ cmake -DANDROID_ABI=x86_64 \
 make --jobs=$(nproc --all)
 
 cd ../bin/intel64/Release/lib
-~/Downloads/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/x86_64-linux-android/bin/strip *.so
+~/Downloads/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/x86_64-linux-android/bin/strip *.so
 ```
 
 <!-- ### To run Android on your PC
