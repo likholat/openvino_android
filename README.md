@@ -61,16 +61,15 @@ cmake -DANDROID_ABI=x86_64 \
 -DCMAKE_TOOLCHAIN_FILE=~/Downloads/android-ndk-r20/build/cmake/android.toolchain.cmake ..
 
 make --jobs=$(nproc --all)
+
+cd ../bin/intel64/Release/lib
+~/Downloads/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/x86_64-linux-android/bin/strip *.so
 ```
 
 <!-- ### To run Android on your PC
 
-1. Download .iso file:
-
    ```wget https://osdn.net/frs/redir.php?m=dotsrc&f=android-x86%2F71931%2Fandroid-x86_64-9.0-r2.iso```
-
-2. Use [BalenaEtcher](https://www.balena.io/etcher/) to flash Android OS to USB flash drive.
-3. Reboot your PC to run Android OS. -->
+-->
 
 ### Create Android Studio project and run it on your PC with Android OS
 
@@ -85,9 +84,6 @@ cd ~/Downloads & mkdir openvino
 
 cp ~/Downloads/openvino/bin/intel64/Release/lib/plugins.xml ~/Downloads/openvino
 cp ~/Downloads/openvino/bin/intel64/Release/lib/inference_engine_java_api.jar ~/Downloads/openvino
-
-cd ~/Downloads/openvino/bin/intel64/Release/lib
-~/Downloads/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/x86_64-linux-android/bin/strip *.so
 
 cp ~/Downloads/openvino/bin/intel64/Release/lib/*.so ~/Downloads/openvino
 
@@ -106,32 +102,48 @@ cp ~/Downloads/openvino/inference-engine/temp/vpu/libusb/libs/x86_64/libusb1.0.s
    * Choose "Empty Activity"
    ![image]()
 
-2. Add `inference_engine_java_api.jar` dependency.
-  - Switch your folder structure from Android to Project.
-  ![image]()
-  - Search for the `libs` folder: `app/libs`. Paste your `.jar` file to this foldel.
-  ![image]()
-  - Right click on the `inference_engine_java_api.jar` file and choose `Add as library`. This will take care of adding compile files(`libs/inference_engine_java_api.jar`) in build.gradle.
+2. Add OpenCV dependency:
+    * Download [OpenCV SDK for Android](https://github.com/opencv/opencv/releases/download/4.5.0/opencv-4.5.0-android-sdk.zip) to `~/Downloads` folder.
 
-3. Create `jniLibs/x86_64` directory in `app/src/main` folder
-![image]()
+    * `File -> New -> ImportModule`
 
-4. Add all `.so` files from list above to `jniLibs/x86_64` folder:
-```
-cp ~/Downloads/openvino/*.so /AndroidStudioProjects/MyApplication/app/src/main/jniLibs/x86_64
-```
+    Specify a path to unpacked SDK: ~/Downloads/opencv-4.5.0-android-sdk/OpenCV-android-sdk/sdk
+    ![image]()
 
-5. Switch your folder structure from Project to Android.
+    * Add module dependency: `File -> Project Structure`
+    ![image]()
+    ![image]()
 
-6. Download model files: [face-detection-adas-0001.bin](https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.bin) and [face-detection-adas-0001.xml](https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.xml).
+    * Replace "minSdkVersion 21" to "minSdkVersion 15" in `Gradle Scripts -> build.gradle (Module: sdk)`
+    ![image]()
 
-7. Use [Android Debug Bridge (adb)](https://developer.android.com/studio/command-line/adb) to transfer data files on Android:
+3. Add InferenceEngine dependency:
+    * Add `inference_engine_java_api.jar` dependency.
+        - Switch your folder structure from Android to Project.
+        ![image]()
+        - Search for the `libs` folder: `app/libs`. Paste your `.jar` file to this foldel.
+        ![image]()
+        - Right click on the `inference_engine_java_api.jar` file and choose `Add as library`. This will take care of adding compile files(`libs/inference_engine_java_api.jar`) in build.gradle.
+
+    * Create `jniLibs/x86_64` directory in `app/src/main` folder
+    ![image]()
+
+    * Add all `.so` files from list above to `jniLibs/x86_64` folder:
+    ```
+    cp ~/Downloads/openvino/*.so /AndroidStudioProjects/MyApplication/app/src/main/jniLibs/x86_64
+    ```
+
+    * Switch your folder structure from Project to Android.
+
+4. Download model files: [face-detection-adas-0001.bin](https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.bin) and [face-detection-adas-0001.xml](https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.xml).
+
+5. Use [Android Debug Bridge (adb)](https://developer.android.com/studio/command-line/adb) to transfer data files on Android:
     ```
     adb push ~/Downloads/openvino/plugins.xml /data
-    adb push ~/Downloads/model/face-detection-adas-0001.xml ~/Downloads/model/face-detection-adas-0001.bin /data
+    adb push face-detection-adas-0001.xml face-detection-adas-0001.bin /data
     ```
 
-8. To add face detection from the camera to the application, change the following files:
+6. To add face detection from the camera to the application, change the following files:
     - To work with camera we used [Doorbell](https://github.com/androidthings/doorbell) project sources. Just add [DoorbellCamera.java](https://github.com/androidthings/doorbell/blob/master/app/src/main/java/com/example/androidthings/doorbell/DoorbellCamera.java) file to ```app/java/com/example/myapplication``` foldel.
 
     - [```app/manifests/AndroidManifest.xml```](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/AndroidManifest.xml)
@@ -139,5 +151,5 @@ cp ~/Downloads/openvino/*.so /AndroidStudioProjects/MyApplication/app/src/main/j
     - [```app/res/layout/activity_main.xml```](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/res/layout/activity_main.xml)
     - [app/java/com/example/myapplication/MainActivity.java](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/java/com/example/myapplication/MainActivity.java) file.
 
-9. Try to run the application 
+7. Try to run the application 
 ![image]()

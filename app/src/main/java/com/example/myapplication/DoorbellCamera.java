@@ -1,4 +1,4 @@
-//Source: https://github.com/androidthings/doorbell/blob/master/app/src/main/java/com/example/androidthings/doorbell/DoorbellCamera.java
+// Source: https://github.com/androidthings/doorbell/blob/master/app/src/main/java/com/example/androidthings/doorbell/DoorbellCamera.java
 
 /*
  * Copyright 2016, The Android Open Source Project
