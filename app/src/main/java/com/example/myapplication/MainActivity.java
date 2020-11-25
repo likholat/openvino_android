@@ -66,9 +66,9 @@ public class MainActivity extends AppCompatActivity {
 
         Map<String, InputInfo> inputsInfo = net.getInputsInfo();
         inputName = new ArrayList<String>(inputsInfo.keySet()).get(0);
-        inputInfo = inputsInfo.get(inputName);
+        InputInfo inputInfo = inputsInfo.get(inputName);
 
-        preProcessInfo = inputInfo.getPreProcess();
+        PreProcessInfo preProcessInfo = inputInfo.getPreProcess();
         preProcessInfo.setResizeAlgorithm(ResizeAlgorithm.RESIZE_BILINEAR);
         inputInfo.setLayout(Layout.NHWC);
         inputInfo.setPrecision(Precision.U8);
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         ExecutableNetwork executableNetwork = core.LoadNetwork(net, "CPU");
         inferRequest = executableNetwork.CreateInferRequest();
 
-        outputsInfo = net.getOutputsInfo();
+        Map<String, Data> outputsInfo = net.getOutputsInfo();
         outputName = new ArrayList<String>(outputsInfo.keySet()).get(0);
 
         color = new Scalar(0, 255, 0);
@@ -177,8 +177,4 @@ public class MainActivity extends AppCompatActivity {
     private String inputName;
     private String outputName;
     private Scalar color;
-    
-    private InputInfo inputInfo;
-    private PreProcessInfo preProcessInfo;
-    private Map<String, Data> outputsInfo;
 }

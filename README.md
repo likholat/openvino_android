@@ -79,7 +79,7 @@ The application reads an image from the camera, uses a neural network to detects
     * You need the following files from OpenVINO:
 
     ```
-    cd ~/Downloads & mkdir openvino
+    cd ~/Downloads && mkdir openvino
 
     cp ~/Downloads/openvino/bin/intel64/Release/lib/plugins.xml ~/Downloads/openvino
     cp ~/Downloads/openvino/bin/intel64/Release/lib/inference_engine_java_api.jar ~/Downloads/openvino
