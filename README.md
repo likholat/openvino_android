@@ -126,12 +126,19 @@ The application reads an image from the camera, uses a neural network to detects
     * Replace "minSdkVersion 21" to "minSdkVersion 15" in `Gradle Scripts -> build.gradle (Module: sdk)`
     ![image]()
 
-6. Download model files: [face-detection-adas-0001.bin](https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.bin) and [face-detection-adas-0001.xml](https://download.01.org/opencv/2021/openvinotoolkit/2021.1/open_model_zoo/models_bin/2/face-detection-adas-0001/FP16/face-detection-adas-0001.xml).
+6. Download model files:
+
+```
+git clone --depth 1 https://github.com/openvinotoolkit/open_model_zoo
+cd open_model_zoo/tools/downloader
+python3 -m pip install -r requirements.in
+python3 downloader.py --name asl-recognition-0004 -o ~/Downloads
+```
 
 7. Use [Android Debug Bridge (adb)](https://developer.android.com/studio/command-line/adb) to transfer data files on Android:
     ```
     adb push ~/Downloads/openvino/plugins.xml /data
-    adb push face-detection-adas-0001.xml face-detection-adas-0001.bin /data
+    adb push ~/Downloads/FP32/asl-recognition-0004.xml asl-recognition-0004.bin /data
     ```
 
 8. Try to run the application 
