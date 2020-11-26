@@ -127,13 +127,12 @@ The application reads an image from the camera, uses a neural network to detects
     ![image]()
 
 6. Download model files:
-
-```
-git clone --depth 1 https://github.com/openvinotoolkit/open_model_zoo
-cd open_model_zoo/tools/downloader
-python3 -m pip install -r requirements.in
-python3 downloader.py --name asl-recognition-0004 -o ~/Downloads
-```
+    ```
+    git clone --depth 1 https://github.com/openvinotoolkit/open_model_zoo
+    cd open_model_zoo/tools/downloader
+    python3 -m pip install -r requirements.in
+    python3 downloader.py --name asl-recognition-0004 -o ~/Downloads
+    ```
 
 7. Use [Android Debug Bridge (adb)](https://developer.android.com/studio/command-line/adb) to transfer data files on Android:
     ```
