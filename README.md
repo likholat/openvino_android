@@ -74,6 +74,8 @@ The application reads an image from the camera, uses a neural network to detects
     - [```app/res/layout/activity_main.xml```](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/res/layout/activity_main.xml)
     - [app/java/com/example/myapplication/MainActivity.java](https://github.com/likholat/openvino_android/blob/tutorial/app/src/main/java/com/example/myapplication/MainActivity.java) file.
 
+* Add file with ASL class names: choose `Project window`, press `Alt+Insert` and select `Folder->Assets folder`. Then put `classes.txt` file into `assets` folder.
+
 4. Add InferenceEngine dependency:
 
     * You need the following files from OpenVINO:
