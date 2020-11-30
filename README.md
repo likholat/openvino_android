@@ -95,6 +95,9 @@ The application reads an image from the camera, uses a neural network to detects
 
     `cp ~/Downloads/android-ndk/sources/cxx-stl/llvm-libc++/libs/x86_64/libc++_shared.so ~/Downloads/openvino`
 
+    * Switch your folder structure from Android to Project.
+    ![image]()
+
     * Create `jniLibs/x86_64` directory in `app/src/main` folder
     ![image]()
 
@@ -104,12 +107,11 @@ The application reads an image from the camera, uses a neural network to detects
     ```
 
     * Add `inference_engine_java_api.jar` dependency.
-        - Switch your folder structure from Android to Project.
-        ![image]()
         - Search for the `libs` folder: `app/libs`. Paste your `.jar` file to this foldel.
         ![image]()
         - Right click on the `inference_engine_java_api.jar` file and choose `Add as library`. This will take care of adding compile files(`libs/inference_engine_java_api.jar`) in build.gradle.
-        - Switch your folder structure from Project to Android.
+
+    * Switch your folder structure from Project to Android.
 
 5. Add OpenCV dependency:
     * Download [OpenCV SDK for Android](https://github.com/opencv/opencv/releases/download/4.5.0/opencv-4.5.0-android-sdk.zip) to `~/Downloads` folder.

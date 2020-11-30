@@ -6,10 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/imageView"
+    <org.opencv.android.JavaCameraView
+        android:id="@+id/CameraView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true" />
+        android:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
